@@ -1,26 +1,23 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { corsPreflight, json, jsonError, readJson } from "@/server/http";
-import { createEntry, listEntries } from "@/server/lab.server";
-import type { EntryInput } from "@/lib/lab-types";
+import { createTopic, listTopics } from "@/server/lab.server";
+import type { TopicInput } from "@/lib/lab-types";
 
-export const Route = createFileRoute("/api/v1/entries/")({
+export const Route = createFileRoute("/api/v1/topics/")({
   server: {
     handlers: {
       OPTIONS: async () => corsPreflight(),
-      GET: async ({ request }) => {
+      GET: async () => {
         try {
-          const url = new URL(request.url);
-          const type = url.searchParams.get("type") ?? undefined;
-          const topic = url.searchParams.get("topic") ?? undefined;
-          return json(await listEntries(type, topic));
+          return json(await listTopics());
         } catch (err) {
           return jsonError(err instanceof Error ? err.message : "error", 500);
         }
       },
       POST: async ({ request }) => {
         try {
-          const body = (await readJson(request)) as EntryInput;
-          const created = await createEntry(body);
+          const body = (await readJson(request)) as TopicInput;
+          const created = await createTopic(body);
           return json(created, 201);
         } catch (err) {
           return jsonError(err instanceof Error ? err.message : "error", 400);

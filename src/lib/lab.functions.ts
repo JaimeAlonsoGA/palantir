@@ -5,8 +5,11 @@ import {
   ENTRY_STATUSES,
   ENTRY_TYPES,
   REF_KINDS,
+  RELATION_KINDS,
   type EntryInput,
   type EntryPatch,
+  type TopicInput,
+  type TopicPatch,
 } from "./lab-types";
 
 const quantitySchema = z.object({
@@ -22,6 +25,11 @@ const sourceSchema = z.object({
   note: z.string(),
 });
 
+const relationSchema = z.object({
+  slug: z.string().min(1),
+  rel: z.enum(RELATION_KINDS),
+});
+
 const entryInputSchema = z.object({
   slug: z.string().min(1),
   title: z.string().min(1),
@@ -35,6 +43,8 @@ const entryInputSchema = z.object({
   inventor_note: z.string().optional(),
   sources: z.array(sourceSchema).optional(),
   links: z.array(z.string()).optional(),
+  relations: z.array(relationSchema).optional(),
+  topics: z.array(z.string()).optional(),
 });
 
 const entryPatchSchema = z.object({
@@ -50,14 +60,29 @@ const entryPatchSchema = z.object({
   inventor_note: z.string().optional(),
   sources: z.array(sourceSchema).optional(),
   links: z.array(z.string()).optional(),
+  relations: z.array(relationSchema).optional(),
+  topics: z.array(z.string()).optional(),
 });
 
-export const listEntriesFn = createServerFn({ method: "GET" }).handler(
-  async () => {
+const topicInputSchema = z.object({
+  id: z.string().min(1),
+  title: z.string().min(1),
+  parent_id: z.string().nullable().optional(),
+  summary: z.string().optional(),
+  entries: z.array(z.string()).optional(),
+});
+
+export const listEntriesFn = createServerFn({ method: "GET" })
+  .validator(
+    z.object({
+      type: z.string().optional(),
+      topic: z.string().optional(),
+    }).optional(),
+  )
+  .handler(async ({ data }) => {
     const { listEntries } = await import("@/server/lab.server");
-    return listEntries();
-  },
-);
+    return listEntries(data?.type, data?.topic);
+  });
 
 export const getEntryFn = createServerFn({ method: "GET" })
   .validator(z.object({ slug: z.string() }))
@@ -127,4 +152,33 @@ export const searchEntriesFn = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     const { searchEntries } = await import("@/server/lab.server");
     return searchEntries(data.q);
+  });
+
+export const listTopicsFn = createServerFn({ method: "GET" }).handler(async () => {
+  const { listTopics } = await import("@/server/lab.server");
+  return listTopics();
+});
+
+export const getTopicFn = createServerFn({ method: "GET" })
+  .validator(z.object({ id: z.string() }))
+  .handler(async ({ data }) => {
+    const { getTopic } = await import("@/server/lab.server");
+    return getTopic(data.id);
+  });
+
+export const createTopicFn = createServerFn({ method: "POST" })
+  .validator(topicInputSchema)
+  .handler(async ({ data }) => {
+    const { createTopic } = await import("@/server/lab.server");
+    return createTopic(data as TopicInput);
+  });
+
+export const patchTopicFn = createServerFn({ method: "POST" })
+  .validator(
+    topicInputSchema.partial().extend({ id: z.string().min(1) }),
+  )
+  .handler(async ({ data }) => {
+    const { patchTopic } = await import("@/server/lab.server");
+    const { id, ...patch } = data;
+    return patchTopic(id, patch as TopicPatch);
   });

@@ -32,6 +32,6 @@ export async function readJson(request: Request): Promise<unknown> {
   try {
     return JSON.parse(textBody) as unknown;
   } catch {
-    throw new Error("JSON inválido");
+    throw new Error("invalid JSON");
   }
 }
