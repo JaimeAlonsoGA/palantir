@@ -6,6 +6,8 @@ Live: https://palantir.grok.me
 
 Designed for agents. One record = one object. English. Declarative facts only.
 
+Density: records may be long. Complete mechanisms beat short summaries.
+
 ## Agent entry
 
 | path | use |
