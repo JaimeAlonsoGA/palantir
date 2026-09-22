@@ -20,7 +20,7 @@ const empty: EntryInput = {
 };
 
 export function EntryForm({
-  submitLabel = "PUT",
+  submitLabel = "save",
   initial,
   onSubmit,
 }: {
@@ -151,11 +151,11 @@ export function EntryForm({
           className="rounded-md border border-rule bg-surface px-3 py-2"
         />
       </label>
-      {err ? <p className="text-xs text-rust">{err}</p> : null}
+      {err ? <p className="text-xs text-ink">{err}</p> : null}
       <button
         type="submit"
         disabled={busy}
-        className="h-11 rounded-md bg-sage px-4 font-mono text-sm text-sage-fg disabled:opacity-50"
+        className="h-11 rounded-md bg-ink px-4 font-mono text-sm lowercase text-paper disabled:opacity-50"
       >
         {busy ? "…" : submitLabel}
       </button>
