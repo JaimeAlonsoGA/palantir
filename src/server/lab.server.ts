@@ -689,5 +689,6 @@ certainty = tag every statement measured | reported | inferred | unsourced
 others = relations[] | links[] | sources[] | topics[]
 idea = type=idea, own slug
 forbidden = pedagogy, comparison, analogy, example, reader-correction, unlinked-entities, conversational-residue
+density = claim and mechanism may be long; prefer complete facts over short summaries; agents read full text
 `;
 }

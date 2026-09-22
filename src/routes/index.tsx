@@ -107,15 +107,25 @@ function Home() {
             <Link
               to="/entries/$slug"
               params={{ slug: e.slug }}
-              className="flex flex-col gap-1 py-3 no-underline sm:flex-row sm:items-baseline sm:gap-4"
+              className="flex flex-col gap-2 py-4 no-underline"
             >
-              <span className="font-mono text-xs text-sage">{e.api}</span>
-              <span className="flex-1 text-sm text-ink">{e.title}</span>
-              <span className="flex gap-1">
-                <Chip kind={e.type}>{e.type}</Chip>
-                <Chip kind={e.status}>{e.status}</Chip>
-                <Chip kind={e.certainty}>{e.certainty}</Chip>
-              </span>
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-4">
+                <span className="font-mono text-xs text-sage">{e.api}</span>
+                <span className="flex-1 text-sm text-ink">{e.title}</span>
+                <span className="flex flex-wrap gap-1">
+                  <Chip kind={e.type}>{e.type}</Chip>
+                  <Chip kind={e.status}>{e.status}</Chip>
+                  <Chip kind={e.certainty}>{e.certainty}</Chip>
+                </span>
+              </div>
+              <div className="font-mono text-xs text-ink/50">{e.slug}</div>
+              <p className="whitespace-pre-wrap font-mono text-xs leading-relaxed text-ink/80">
+                {e.claim}
+              </p>
+              <div className="font-mono text-[11px] text-ink/40">
+                links:{(e.links ?? []).length} relations:{(e.relations ?? []).length} topics:
+                {(e.topics ?? []).map((t) => t.id).join(",") || "—"}
+              </div>
             </Link>
           </li>
         ))}
