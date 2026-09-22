@@ -1,23 +1,30 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { listEntriesFn } from "@/lib/lab.functions";
+import { listEntriesFn, listTopicsFn } from "@/lib/lab.functions";
 import { Chip } from "@/components/badges";
 import { ENUMS } from "@/lib/lab-types";
 
 export const Route = createFileRoute("/")({
-  loader: () => listEntriesFn(),
+  loader: async () => {
+    const [entries, topics] = await Promise.all([listEntriesFn(), listTopicsFn()]);
+    return { entries, topics };
+  },
   component: Home,
 });
 
 function Home() {
-  const entries = Route.useLoaderData();
+  const { entries, topics } = Route.useLoaderData();
   const [q, setQ] = useState("");
   const [type, setType] = useState("all");
+  const [topic, setTopic] = useState("all");
+  const [showDrafts, setShowDrafts] = useState(false);
 
   const shown = useMemo(() => {
     const needle = q.trim().toLowerCase();
     return entries.filter((e) => {
+      if (!showDrafts && e.status === "draft") return false;
       if (type !== "all" && e.type !== type) return false;
+      if (topic !== "all" && !(e.topics ?? []).some((t) => t.id === topic)) return false;
       if (!needle) return true;
       return (
         e.title.toLowerCase().includes(needle) ||
@@ -25,14 +32,39 @@ function Home() {
         e.claim.toLowerCase().includes(needle)
       );
     });
-  }, [entries, q, type]);
+  }, [entries, q, type, topic, showDrafts]);
 
   return (
     <main>
-      <div className="flex flex-col gap-3 sm:flex-row">
+      <nav className="mb-4 flex flex-wrap gap-3 font-mono text-xs">
+        <Link to="/" className="text-sage no-underline">
+          /
+        </Link>
+        <Link to="/topics" className="text-ink/70 no-underline">
+          /topics
+        </Link>
+        <Link to="/refs" className="text-ink/70 no-underline">
+          /refs
+        </Link>
+        <Link to="/new" className="text-ink/70 no-underline">
+          /new
+        </Link>
+        <a href="/api/v1/dump" className="text-ink/50 no-underline">
+          /api/v1/dump
+        </a>
+        <a href="/api/v1/graph" className="text-ink/50 no-underline">
+          /api/v1/graph
+        </a>
+        <a href="/llms.txt" className="text-ink/50 no-underline">
+          /llms.txt
+        </a>
+      </nav>
+
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
+          placeholder="search"
           className="h-11 min-h-11 flex-1 rounded-md border border-rule bg-surface px-3 font-mono text-sm text-ink outline-none focus:border-sage"
         />
         <select
@@ -47,6 +79,26 @@ function Home() {
             </option>
           ))}
         </select>
+        <select
+          value={topic}
+          onChange={(e) => setTopic(e.target.value)}
+          className="h-11 min-h-11 rounded-md border border-rule bg-surface px-3 font-mono text-sm text-ink outline-none focus:border-sage"
+        >
+          <option value="all">topic</option>
+          {topics.map((t) => (
+            <option key={t.id} value={t.id}>
+              {t.id}
+            </option>
+          ))}
+        </select>
+        <label className="flex h-11 items-center gap-2 font-mono text-xs text-ink/70">
+          <input
+            type="checkbox"
+            checked={showDrafts}
+            onChange={(e) => setShowDrafts(e.target.checked)}
+          />
+          drafts
+        </label>
       </div>
 
       <ul className="mt-6 divide-y divide-rule">
@@ -61,6 +113,7 @@ function Home() {
               <span className="flex-1 text-sm text-ink">{e.title}</span>
               <span className="flex gap-1">
                 <Chip kind={e.type}>{e.type}</Chip>
+                <Chip kind={e.status}>{e.status}</Chip>
                 <Chip kind={e.certainty}>{e.certainty}</Chip>
               </span>
             </Link>

@@ -9,7 +9,7 @@ export const Route = createFileRoute("/api/v1/refs/$key")({
       GET: async ({ params }) => {
         try {
           const ref = await getRef(params.key);
-          if (!ref) return jsonError("no encontrado", 404);
+          if (!ref) return jsonError("not found", 404);
           return json(ref);
         } catch (err) {
           return jsonError(err instanceof Error ? err.message : "error", 500);

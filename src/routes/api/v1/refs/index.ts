@@ -26,7 +26,7 @@ export const Route = createFileRoute("/api/v1/refs/")({
             url?: string;
             note?: string;
           };
-          if (!body.key) return jsonError("key es obligatorio", 400);
+          if (!body.key) return jsonError("key is required", 400);
           const created = await createRef({
             key: body.key,
             kind: body.kind ?? "misc",
