@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { corsPreflight, json, jsonError } from "@/server/http";
 import { searchEntries } from "@/server/lab.server";
+import { rankSearchHits } from "@/server/search-rank";
 
 export const Route = createFileRoute("/api/v1/search")({
   server: {
@@ -10,7 +11,8 @@ export const Route = createFileRoute("/api/v1/search")({
         try {
           const q = new URL(request.url).searchParams.get("q") ?? "";
           if (!q.trim()) return json([]);
-          return json(await searchEntries(q));
+          const hits = await searchEntries(q);
+          return json(rankSearchHits(hits, q));
         } catch (err) {
           return jsonError(err instanceof Error ? err.message : "error", 500);
         }
