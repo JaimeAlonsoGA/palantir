@@ -36,41 +36,17 @@ function Home() {
 
   return (
     <main>
-      <nav className="mb-4 flex flex-wrap gap-3 font-mono text-xs">
-        <Link to="/" className="text-sage no-underline">
-          /
-        </Link>
-        <Link to="/topics" className="text-ink/70 no-underline">
-          /topics
-        </Link>
-        <Link to="/refs" className="text-ink/70 no-underline">
-          /refs
-        </Link>
-        <Link to="/new" className="text-ink/70 no-underline">
-          /new
-        </Link>
-        <a href="/api/v1/dump" className="text-ink/50 no-underline">
-          /api/v1/dump
-        </a>
-        <a href="/api/v1/graph" className="text-ink/50 no-underline">
-          /api/v1/graph
-        </a>
-        <a href="/llms.txt" className="text-ink/50 no-underline">
-          /llms.txt
-        </a>
-      </nav>
-
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="search"
-          className="h-11 min-h-11 flex-1 rounded-md border border-rule bg-surface px-3 font-mono text-sm text-ink outline-none focus:border-sage"
+          className="h-11 min-h-11 flex-1 rounded-md border border-rule bg-surface px-3 font-mono text-sm text-ink outline-none focus:border-ink"
         />
         <select
           value={type}
           onChange={(e) => setType(e.target.value)}
-          className="h-11 min-h-11 rounded-md border border-rule bg-surface px-3 font-mono text-sm text-ink outline-none focus:border-sage"
+          className="h-11 min-h-11 rounded-md border border-rule bg-surface px-3 font-mono text-sm text-ink outline-none focus:border-ink"
         >
           <option value="all">type</option>
           {ENUMS.type.map((t) => (
@@ -82,7 +58,7 @@ function Home() {
         <select
           value={topic}
           onChange={(e) => setTopic(e.target.value)}
-          className="h-11 min-h-11 rounded-md border border-rule bg-surface px-3 font-mono text-sm text-ink outline-none focus:border-sage"
+          className="h-11 min-h-11 rounded-md border border-rule bg-surface px-3 font-mono text-sm text-ink outline-none focus:border-ink"
         >
           <option value="all">topic</option>
           {topics.map((t) => (
@@ -101,6 +77,9 @@ function Home() {
         </label>
       </div>
 
+      {shown.length === 0 ? (
+        <p className="mt-6 font-mono text-sm text-muted">no entries match</p>
+      ) : null}
       <ul className="mt-6 divide-y divide-rule">
         {shown.map((e) => (
           <li key={e.slug}>
@@ -110,7 +89,7 @@ function Home() {
               className="flex flex-col gap-2 py-4 no-underline"
             >
               <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-4">
-                <span className="font-mono text-xs text-sage">{e.api}</span>
+                <span className="font-mono text-xs text-ink">{e.api}</span>
                 <span className="flex-1 text-sm text-ink">{e.title}</span>
                 <span className="flex flex-wrap gap-1">
                   <Chip kind={e.type}>{e.type}</Chip>
