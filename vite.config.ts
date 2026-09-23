@@ -1,4 +1,4 @@
-import { copyFileSync, existsSync, mkdirSync, readdirSync } from "node:fs";
+import { copyFileSync, existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import type { Plugin } from "vite";
 import { defineConfig } from "vite";
@@ -177,15 +177,20 @@ export default defineConfig(({ command, isPreview }) => ({
             serverDir: "./server",
             hooks: {
               compiled(nitro) {
-                // PGLite loads these via import.meta.url next to the bundled
-                // module. The rollup chunk does not emit them, so Vercel 500s
-                // with ENOENT on /var/task/_libs/pglite.data.
-                const dest = join(nitro.options.output.serverDir, "_libs");
-                if (!existsSync(dest)) return;
-                const src = join(nitro.options.rootDir, "node_modules/@electric-sql/pglite/dist");
-                mkdirSync(dest, { recursive: true });
-                for (const file of ["pglite.data", "pglite.wasm", "initdb.wasm"]) {
-                  copyFileSync(join(src, file), join(dest, file));
+                try {
+                  const dest = join(nitro.options.output.serverDir, "_libs");
+                  if (!existsSync(dest)) return;
+                  const src = join(
+                    nitro.options.rootDir,
+                    "node_modules/@electric-sql/pglite/dist",
+                  );
+                  for (const file of ["pglite.data", "pglite.wasm", "initdb.wasm"]) {
+                    const from = join(src, file);
+                    if (!existsSync(from)) continue;
+                    copyFileSync(from, join(dest, file));
+                  }
+                } catch (err) {
+                  console.error("[pglite] asset copy skipped:", err);
                 }
               },
             },
